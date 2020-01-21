@@ -16,8 +16,10 @@
 
 package io.tuliplogic.ziointro
 
-import scala.{App => ScalaApp}
+import zio._
+import zio.clock.Clock
 
+import scala.{App => ScalaApp}
 import scala.concurrent.{Await, Future}
 
 trait Error
@@ -59,3 +61,48 @@ object Futures extends ScalaApp {
 
 }
 
+object ProgramsAsValues extends ScalaApp {
+  val p1: Task[Unit] = ZIO.effect(println("Hello"))
+
+  // 1. Build a program that prints hello twice. Referential transparency is back
+  // 2. Run a hello world
+  // 3. Pure values, effecful values, create errors, absorb errors
+  // 103. Explore ZEnv
+
+}
+
+object Combinators extends App {
+
+  // 1. Anatomy of a ZIO App
+  // 2. Sequential execution
+  // 3. Sequence a list of ZIO programs
+  // 4. Parallel execution of a list of programs
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
+}
+
+object Fibers extends App {
+
+  import zio.random._
+  import zio.duration._
+
+  val randomSecondsForAnInt: ZIO[Clock with Random, Nothing, Int] = for {
+    n    <- random.nextInt
+    secs <- random.nextInt(5)
+    res  <- ZIO.succeed(n).delay(secs.seconds)
+  } yield res
+
+  // 1. How to create a fiber, join, cancel fibers
+  // 2. Word count with Fibers (source lines parallel counting)
+  // 3. Racing
+  // 4. Cancellation
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
+}
+
+object StreamsExamples extends App {
+
+
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
+}
