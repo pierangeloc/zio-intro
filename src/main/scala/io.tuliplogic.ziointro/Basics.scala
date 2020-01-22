@@ -75,13 +75,17 @@ object ProgramsAsValues extends ScalaApp {
 
 object Combinators extends App {
 
+  import zio.console
   // 1. Anatomy of a ZIO App
   // 2. Sequential execution
 
   // 3. Sequence a list of ZIO programs
   // 4. Parallel execution of a list of programs
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
+  def p(n: Int) = console.putStrLn(s"run($n)") *> ZIO.succeed(n)
+  val prg = ZIO.foreachPar((1 to 100).toList)(p(_))
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = prg.as(0)
 }
 
 object Fibers extends App {
@@ -107,7 +111,7 @@ object Fibers extends App {
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
     (for {
       _ <- console.putStrLn("Printing time")
-      fiber <- printCurrentTime.fork
+      fiber <- printCurrentTime.onInterrupt(console.putStrLn(s"I'm dying because I've been interrupted")).fork
       _ <- console.putStrLn("Press a key to stop")
       _ <- console.getStrLn
       _ <- fiber.interrupt
@@ -115,7 +119,6 @@ object Fibers extends App {
 }
 
 object StreamsExamples extends App {
-
 
 
   override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
