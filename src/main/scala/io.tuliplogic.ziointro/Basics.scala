@@ -67,7 +67,9 @@ object ProgramsAsValues extends ScalaApp {
   // 1. Build a program that prints hello twice. Referential transparency is back
   // 2. Run a hello world
   // 3. Pure values, effecful values, create errors, absorb errors
-  // 103. Explore ZEnv
+  // 4. home made console
+  // 5. Real console
+  // 6. Explore ZEnv
 
 }
 
@@ -75,6 +77,7 @@ object Combinators extends App {
 
   // 1. Anatomy of a ZIO App
   // 2. Sequential execution
+
   // 3. Sequence a list of ZIO programs
   // 4. Parallel execution of a list of programs
 
@@ -89,15 +92,26 @@ object Fibers extends App {
   val randomSecondsForAnInt: ZIO[Clock with Random, Nothing, Int] = for {
     n    <- random.nextInt
     secs <- random.nextInt(5)
-    res  <- ZIO.succeed(n).delay(secs.seconds)
+    res  <- ZIO.sleep(secs.seconds) *> ZIO.succeed(n)
   } yield res
 
   // 1. How to create a fiber, join, cancel fibers
+  val printCurrentTime =
+    clock.currentDateTime.flatMap(t => console.putStrLn(s"CurrentTime: $t")).delay(1.seconds).forever
+
   // 2. Word count with Fibers (source lines parallel counting)
   // 3. Racing
   // 4. Cancellation
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = ???
+
+  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
+    (for {
+      _ <- console.putStrLn("Printing time")
+      fiber <- printCurrentTime.fork
+      _ <- console.putStrLn("Press a key to stop")
+      _ <- console.getStrLn
+      _ <- fiber.interrupt
+    } yield 0) orElse ZIO.succeed(1)
 }
 
 object StreamsExamples extends App {
